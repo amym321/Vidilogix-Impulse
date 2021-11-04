@@ -118,6 +118,7 @@
       <div class="payment-buttons">
     {%- endif -%}
 
+    {% comment %} added code - am. added logic for pre-order button and added to sold out logic {% endcomment %}
       {%- liquid
         assign default_text = 'products.product.add_to_cart' | t
         assign button_text = 'products.product.add_to_cart' | t
@@ -127,8 +128,8 @@
         endif
         
         if current_variant.inventory_policy == 'continue' and current_variant.inventory_quantity <= 0
-          assign default_text = 'Pre-Order' 
-          assign button_text = 'Pre-Order'
+          assign default_text = 'products.product.preorder' | t
+          assign button_text = 'products.product.preorder' | t
         endif
  
         
