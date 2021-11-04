@@ -1,0 +1,154 @@
+<div class="{% if block.settings.spacing %}index-section {% endif %}block-{{ block.id }}">
+  <div class="page-width">
+    {%- capture image_layout -%}
+      <div class="feature-row__item">
+        <div class="feature-row__item--holder" {% if block.settings.image_bottom_margin %}style="margin-bottom: {{ block.settings.title_bottom_margin }}px !important;"{% endif %}>
+          {%- if block.settings.image != blank -%}
+            {%- if block.settings.button_label != blank and block.settings.button_link != blank %}<a href="{{ block.settings.button_link }}">{% endif -%}
+            <div class="image-wrap{% if block.settings.layout == 'top' %} image--top{% elsif block.settings.layout == 'bottom' %} image--bottom{% else %} image--side{% endif %}">
+              {%- assign img_url = block.settings.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+              <img class="feature-row__image lazyload"
+                  data-src="{{ img_url }}"
+                  data-widths="[180, 360, 540, 720, 900, 1080]"
+                  data-aspectratio="{{ block.settings.image.aspect_ratio }}"
+                  data-sizes="auto"
+                  alt="{{ block.settings.image.alt }}">
+            </div>
+            {%- if block.settings.button_label != blank and block.settings.button_link != blank %}</a>{% endif -%}
+          {%- else -%}
+            <div class="image-wrap">
+              {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endcapture -%}
+
+    <div class="{% if block.settings.layout == 'top' or block.settings.layout == 'bottom' %}feature-column{% else %}feature-row{% endif %}" data-aos>
+      {%- if block.settings.layout == 'left' or block.settings.layout == 'top' -%}
+        {{ image_layout }}
+      {%- endif -%}
+
+      <div class="feature-row__item feature-row__text feature-row__text--{{ block.settings.layout }}">
+        {%- if block.settings.subtitle != blank -%}
+          <p class="h5 section-header__title{% if block.settings.center_title %} text-center{% endif %}">{{ block.settings.subtitle }}</p>
+        {%- endif -%}
+        {%- if block.settings.title != blank -%}
+          <p class="h3{% if block.settings.center_title %} text-center{% endif %}" {% if block.settings.title_bottom_margin %}style="margin-bottom: {{ block.settings.title_bottom_margin }}px !important;"{% endif %}>{{ block.settings.title | escape }}</p>
+        {%- endif -%}
+
+        {% if block.settings.text_below and block.settings.layout == 'bottom' %}
+          {%- if block.settings.layout == 'right' or block.settings.layout == 'bottom' -%}
+            {{ image_layout }}
+          {%- endif -%}
+        {% endif %}
+
+        {%- if block.settings.text != blank -%}
+          <div class="rte featured-row__subtext">{{ block.settings.text }}</div>
+        {%- endif -%}
+        {% if block.settings.button_chat == true and block.settings.button_label != blank %}
+          <a id="rp-home" class="btn">
+            {{ block.settings.button_label }}
+          </a>
+        {%- elsif block.settings.button_label != blank -%}
+          <a href="{{ block.settings.button_link }}" class="btn">
+            {{ block.settings.button_label }}
+          </a>
+        {%- endif -%}
+        {% if block.settings.disclaimer != blank %}
+          <div class="feature-row__disclaimer">
+            {{ block.settings.disclaimer }}
+          </div>
+        {% endif %}
+      </div>
+
+      {% unless block.settings.text_below %}
+        {%- if block.settings.layout == 'right' or block.settings.layout == 'bottom' -%}
+          {{ image_layout }}
+        {%- endif -%}
+      {% endunless %}
+
+    </div>
+  </div>
+</div>
+
+{% style %}
+  {% if block.settings.background_color %}
+    .block-{{ block.id }} {
+      background-color: {{ block.settings.background_color }};
+      margin-bottom: 0px;
+      {% if block.settings.natural_image_height %}
+        padding: 0;
+      {% else %}
+        padding: 75px 0;
+      {% endif %}
+    }
+
+  {% endif %}
+
+  {% if block.settings.background_color and block.settings.layout == 'bottom' %}
+    .custom-acc-template .block-{{ block.id }} {
+      padding: 130px 0 140px;
+    }
+  {% endif %}
+
+  {% if block.settings.full_width %}
+    @media screen and (min-width: 768px) {
+      .block-{{ block.id }} {
+        position: relative;
+        overflow: hidden;
+      }
+      .block-{{ block.id }} .feature-row {
+        min-height: 400px;
+      }
+      .block-{{ block.id }} .feature-row__item .feature-row__item--holder {
+        width: 50%;
+        height: 100%;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        {% if block.settings.layout == 'left' %}
+          left: 0;
+        {% elsif block.settings.layout == 'right' %}
+          right: 0;
+        {% endif %}
+      }
+      .block-{{ block.id }} .feature-row__item .feature-row__item--holder .image-wrap {
+        height: 100%;
+      }
+      .block-{{ block.id }} .feature-row__item .feature-row__item--holder .feature-row__image {
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+  {% else %}
+    .block-{{ block.id }} .feature-row__item .feature-row__item--holder .image-wrap {
+      height: 0;
+      padding-bottom: {{ 100 | divided_by: block.settings.image.aspect_ratio }}%;
+    }
+    .block-{{ block.id }} .feature-row__item .feature-row__item--holder {
+      margin: 0 auto;
+      max-width: {{ block.settings.image_width }}px;
+    }
+  {% endif %}
+
+  {% if block.settings.layout == 'bottom' %}
+    .block-{{ block.id }} .feature-row__item .feature-row__item--holder {
+      margin-top: 25px;
+    }
+  {% endif %}
+
+  .block-{{ block.id }} {
+    color: {{ block.settings.text_color }};
+  }
+
+  @media screen and (max-width: 767px) {
+    .block-{{ block.id }} {
+      padding: 50px 0;
+    }
+
+    .image-wrap.image--side {
+      margin-bottom: 20px;
+    }
+  }
+{% endstyle %}

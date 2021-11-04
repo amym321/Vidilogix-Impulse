@@ -1,0 +1,12 @@
+{% render 'page-block-smart-header' %}
+<div class="page-width page-width--narrow page-content default-page">
+  {%- render 'breadcrumbs' -%}
+  {% comment %}<header class="section-header">
+    <h1 class="section-header__title">{{ page.title }}</h1>
+  </header>{% endcomment %}
+
+  <div class="rte rte--nomargin">
+    {{ page.content }}
+  </div>
+
+</div>

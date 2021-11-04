@@ -1,0 +1,112 @@
+{%- assign section_id = product.id -%}
+{%- capture form_id -%}AddToCartForm-{{ section_id }}{%- endcapture -%}
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+{%- form 'product', product, id: form_id, class: 'product-single__form' -%}
+  {%- unless product.has_only_default_variant -%}
+    {%- for option in product.options_with_values -%}
+
+      <div class="variant-wrapper variant-wrapper--{{ settings.variant_type }} js">
+        <label class="variant__label{% if option.name == 'Default' or option.name == 'Title' %} hidden-label{% endif %}{% unless settings.variant_labels_enable %} hidden-label{% endunless %}"
+          for="SingleOptionSelector-{{ section_id }}-option-{{ forloop.index0 }}">
+          {{ option.name }}
+        </label>
+        <div class="variant-input-wrap" data-index="option{{ forloop.index }}" data-handle="{{ option.name | handleize }}">
+          <select
+            class="variant__input-{{ section_id }}"
+            id="SingleOptionSelector-{{ section_id }}-option-{{ forloop.index0 }}"
+            data-index="option{{ forloop.index }}">
+            {%- for value in option.values -%}
+              {%- liquid
+                assign variant_label_status = true
+                if product.options.size == 1
+                  unless product.variants[forloop.index0].available
+                    assign variant_label_status = false
+                  endunless
+                endif
+              -%}
+              <option
+                value="{{ value | escape }}"
+                {% if option.selected_value == value %} selected="selected"{% endif %}
+                {% unless variant_label_status %} disabled="disabled"{% endunless %}
+                name="{{ option.name }}"
+                class="variant-input"
+                data-index="option{{ forloop.index }}">
+                {{ value }}
+              </option>
+            {%- endfor -%}
+          </select>
+        </div>
+      </div>
+
+
+    {%- endfor -%}
+  {%- endunless -%}
+
+  <select name="id" id="ProductSelect-{{ section_id }}" class="product-single__variants no-js">
+    {%- for variant in product.variants -%}
+      {%- if variant.available -%}
+        <option {% if variant == product.selected_or_first_available_variant %}
+          selected="selected"{% endif %}
+          value="{{ variant.id }}">
+          {{ variant.title }} - {{ variant.price | money_with_currency }}
+        </option>
+      {%- else -%}
+        <option disabled="disabled">
+          {{ variant.title }} - {{ 'products.product.sold_out' | t }}
+        </option>
+      {%- endif -%}
+    {%- endfor -%}
+  </select>
+
+  <div class="product__quantity-cart">
+    {% comment %}
+    {%- if settings.quantity_enable -%}
+      <div class="product__quantity product__quantity--{{ settings.variant_type }}">
+        <label for="Quantity-{{ section_id }}">{{ 'products.product.quantity' | t }}</label>
+        {%- render 'quantity-input', id: section_id, qty: 1, min: 1 -%}
+      </div>
+    {%- endif -%}
+    {% endcomment %}
+
+
+      {%- liquid
+        assign default_text = 'products.product.add_to_cart' | t
+        assign button_text = 'products.product.add_to_cart' | t
+        if template == 'product.preorder'
+          assign default_text = 'products.product.preorder' | t
+          assign button_text = 'products.product.preorder' | t
+        endif
+        unless current_variant.available
+          assign button_text = 'products.product.sold_out' | t
+        endunless
+      -%}
+
+      <button
+        {% if product.empty? %}type="button"{% else %}type="submit"{% endif %}
+        name="add"
+        id="AddToCart-{{ section_id }}"
+        class="btn add-to-cart{% if enable_dynamic_buttons and product.selling_plan_groups == empty %} btn--secondary{% endif %}"
+        {% unless current_variant.available %} disabled="disabled"{% endunless %}>
+        <span id="AddToCartText-{{ section_id }}" data-default-text="{{ default_text }}">
+          {{ button_text }} - <span class="pp_price">{{ current_variant.price | money }}</span>
+        </span>
+      </button>
+
+      {%- if enable_dynamic_buttons -%}
+        {{ form | payment_button }}
+      {%- endif -%}
+
+    {%- if enable_dynamic_buttons -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <textarea id="VariantsJson-{{ section_id }}" class="hide" aria-hidden="true" aria-label="Product JSON">
+    {{ product.variants | json }}
+  </textarea>
+  {%- if product.options.size > 1 -%}
+    <textarea id="CurrentVariantJson-{{ section_id }}" class="hide" aria-hidden="true" aria-label="Variant JSON">
+      {{ current_variant | json }}
+    </textarea>
+  {%- endif -%}
+{%- endform -%}

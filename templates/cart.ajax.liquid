@@ -1,0 +1,37 @@
+{% comment %}
+  JS-load cart markup without bloat of a full layout.
+
+  This is used in both the cart drawer and cart page.
+  When a quantity is changed, this file is scraped and the .cart__item-price-col
+    is fully replaced to account for possible cart discounts changing
+
+  The cart-wide discount div also replaces what is originally in the cart
+    as it can change anytime a cart-item changes
+{% endcomment %}
+{% layout none %}
+
+{% liquid
+  assign freeShipAmount = settings.free_ship_amount | remove: "." | plus: 0
+  assign priceToFreeShip = freeShipAmount | minus: cart.total_price
+-%}
+
+<div class="cart__items"
+  data-count="{{ cart.item_count }}"
+  data-cart-discounts="{{ cart.total_discount | money | strip_html }}"
+  data-cart-subtotal="{{ cart.total_price | money | strip_html }}"
+  data-free-ship-amount="{{ freeShipAmount }}"
+  data-price-to-free-ship="{{ freeShipAmount | minus: cart.total_price }}">
+  {% for item in cart.items %}
+    {%- render 'cart-item', location: 'ajax', product: item, small: true, removeBtn: false, forloop: forloop -%}
+  {% endfor %}
+</div>
+<div class="cart__discounts cart__item-sub cart__item-row{% if cart.cart_level_discount_applications == blank %} hide{% endif %}">
+  <div>{{ 'cart.general.discounts' | t }}</div>
+  <div>
+    {% for cart_discount in cart.cart_level_discount_applications %}
+      <div class="cart__discount">
+        {{ cart_discount.title }} (-{{ cart_discount.total_allocated_amount | money }})
+      </div>
+    {% endfor %}
+  </div>
+</div>

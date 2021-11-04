@@ -1,0 +1,32 @@
+<div class="{{ section_class }} block-{{block.id }} rich-text-block{% if block.settings.flush %} index-section--flush{% else %} index-section{% endif %}{% if block.settings.background_color != blank %} has-background{% endif %}">
+  <div class="page-width{% if block.settings.narrow_column %} page-width--narrow{% endif %} text-{{ block.settings.align_text }}">
+    {%- if block.settings.title != blank -%}
+      <header class="section-header">
+        <h2 class="section-header__title">
+          {{ block.settings.title | escape }}
+        </h2>
+      </header>
+    {%- endif -%}
+    {%- if block.settings.text != blank -%}
+      <div class="rte">
+        {%- if block.settings.enlarge_text %}<div class="enlarge-text">{% endif -%}
+          {{ block.settings.text }}
+        {%- if block.settings.enlarge_text %}</div>{% endif -%}
+        {% if block.settings.button_chat %}
+          <a id="rp-home" class="btn">
+            {{ block.settings.button_text }}
+          </a>
+        {% elsif block.settings.button_link != blank %}
+           <a class="btn" href="{{ block.settings.button_link }}" class="button">{{ block.settings.button_text }}</a>
+        {% endif %}
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% style %}
+.block-{{ block.id }}.has-background {
+  background: {{ block.settings.background_color }};
+  padding: 70px 0;
+}
+{% endstyle %}

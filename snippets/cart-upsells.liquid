@@ -1,0 +1,86 @@
+{%- assign upsell_item_count = 0 -%}
+{%- assign upsell_items = shop.metafields.cart.upsell_products | split: "|" -%}
+{% for item in upsell_items %}
+    {%- assign upsell_item_count = upsell_item_count | plus: 1 -%}
+{% endfor %}
+
+<div class="upsell-wrapper appear-animation appear-delay-2">
+  <div class="slideshow-wrapper">
+    <button type="button" class="visually-hidden slideshow__pause" data-id="{{ section.id }}" aria-live="polite">
+      <span class="slideshow__pause-stop">
+        <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-pause" viewBox="0 0 10 13"><g fill="#000" fill-rule="evenodd"><path d="M0 0h3v13H0zM7 0h3v13H7z"/></g></svg>
+        <span class="icon__fallback-text">{{ 'sections.slideshow.pause_slideshow' | t }}</span>
+      </span>
+      <span class="slideshow__pause-play">
+        <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-play" viewBox="18.24 17.35 24.52 28.3"><path fill="#323232" d="M22.1 19.151v25.5l20.4-13.489-20.4-12.011z"/></svg>
+        <span class="icon__fallback-text">{{ 'sections.slideshow.play_slideshow' | t }}</span>
+      </span>
+    </button>
+
+    <!-- {%- capture cart_array = -%}
+      {%- for cart_item in cart.items -%}
+        {{- cart_item.product_id | remove:" " | append: cart_array -}}
+      {%- endfor -%}
+    {%- endcapture -%}
+
+    {{ cart_array -}} -->
+
+    <div id="UpsellSlider" class="cart-slider" data-block-count="{{ upsell_items.size }}">
+      {%- assign slide_index = 0 -%}
+
+      {%- for item in upsell_items -%}
+
+        {% assign upsell_product = all_products[item] %}
+
+        <!-- {%- unless cart_arrray contains product_id_compare -%} -->
+
+        <div class="cart-slider__slide" data-index="{{ slide_index }}">
+          <div class="upsell__item">
+            <div class="upsell__image">
+              <a href="{{ upsell_product.url }}">{{ upsell_product.featured_image | img_url: '100x100' | img_tag }}</a>
+            </div>
+            <div class="upsell__details">
+              <div class="upsell__title"><a href="{{ upsell_product.url }}">{{ upsell_product.title }}</a></div>
+              <div class="upsell__price">{{ upsell_product.price | money }}
+                {% if upsell_product.compare_at_price != blank %}
+                  <span class="upsell__compare-price">{{ upsell_product.compare_at_price | money }}</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="upsell__add">
+              {% if upsell_product.variants.size > 1 %}
+                {% comment %} <div id="UpsellPlan-{{ upsell_product.id }}" data-section-id="{{ upsell_product.id }}" data-enable="true" data-product-id="{{ upsell_product.id }}" data-product-handle="{{ upsell_product.handle }}" class="grid-product btn upsell__complex">
+                  <div data-section-id="upsell_product.id" data-subsection data-section-type="collection-template">
+                  <span class="btn quick-product__btn js-modal-open-quick-modal-{{ upsell_product.id }}">+ Add</span>
+                  {%- render 'quick-shop-modal', product: prod -%}
+                  </div>
+                </div> {% endcomment %}
+                <button data-product-id="{{ upsell_product.id }}" data-variant-id="{{ upsell_product.variants.first.id }}" class="btn upsell__complex">+ Add</button>
+              {% else %}
+                <button data-product-id="{{ upsell_product.id }}" data-variant-id="{{ upsell_product.variants.first.id }}" class="btn upsell__simple">+ Add</button>
+              {% endif %}
+            </div>
+          </div>
+          {% comment %}<div id="prod-{{ upsell_product.id }}" class="upsell__form">
+            {% comment %}{%- for option in upsell_product.options_with_values -%}
+              {%- render 'variant-dropdown',
+                section_id: upsell_product.id,
+                option: option,
+                forloop: forloop
+              -%}
+            {%- endfor -%}{% endcomment %}
+            {% comment %}<button data-product-id="{{ upsell_product.id }}" data-variant-id="{{ upsell_product.variants.first.id }}" class="btn upsell__complete">Add to Cart</button> {% endcomment %}
+            {% assign upsell_current_variant = upsell_product.selected_or_first_available_variant %}
+            {%- render 'product-form',
+              section_id: upsell_product.id,
+              product: upsell_product,
+              current_variant: upsell_current_variant
+            -%}
+          </div>{% endcomment %}
+        </div>
+        {%- assign slide_index = slide_index | plus: 1 -%}
+        <!-- {%- endunless -%} -->
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
